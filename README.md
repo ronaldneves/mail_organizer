@@ -11,10 +11,12 @@ after fetching the emails list, the user then can mark them as read, move to a f
     - sender and subject (wip)
 
 - mail operations:
-    - create mail folder (wip)
-    - move mail to specific folder (wip)
+    - create mail folder
+    - move mail to specific folder
     - delete mail (wip)
     - mark as read (wip)
+    - delete all mail (wip)
+    - mark all as read (wip)
 
 ## supported languages
 - portuguese (BR)
