@@ -4,15 +4,21 @@ import win32com.client as w32
 type_list = ['subject', 'sender']
 
 ## FUNCTIONS
-def 
+def get_user_selection():
+    '''gets the operation the user wants to perform and returns it.'''
+    
+    print("Welcome to the mail organizer. ")
+    print("Insert the number of the function you want to do based on the options below: ")
+    print("1 - Create a new mail folder\n2 - Move mail\n3 - Mark mail as read\n4 - Delete mail\n5 - Mark ALL as read\n6 - Delete ALL mail")
+    menu_selection = input("")
+
+    return menu_selection
 
 
 def get_account():
     '''gets and returns the user account. must be str with a valid mail @outlook/@live/@hotmail.'''
-
-    account = input("Insert your outlook/live/hotmail account: ")
-    
-    return account
+ 
+    return input("Insert your outlook/live/hotmail account: ")
 
 
 def enter_application(account):
@@ -24,6 +30,41 @@ def enter_application(account):
 
     return inbox
 
+
+def get_new_folder_name():
+    '''gets the user input to create a new folder'''
+    
+    return input("Insert the name of the folder you want to create: ")
+
+
+def create_folder(inbox, new_folder_name):
+    '''takes the account from the user input to retrieve all the mail folders'''
+
+    try:
+        new_folder = inbox.Folders.Add(new_folder_name)
+        print(f"Folder '{new_folder_name}' created successfully.")
+        return new_folder
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+
+def get_folder_name():
+    '''gets the user input to select the folder he wants to move his mail to'''
+
+    return input("Insert the name of the folder you want to move the listed mail to: ")
+
+
+def move_to_folder(folder_name, mail_list, inbox):
+    '''takes name of the folder the user wants to move his mail to and the list of retrieved mail from the previous retrieval method and moves it'''
+    try:
+        for mail in mail_list:
+            mail.Move(inbox.Folders(folder_name))
+    
+    except Exception as e:
+        print(f"An error has occurred while trying to move your mail. Error: {e}")
+    
 
 def get_all_mail(inbox):
     '''retrieves all mail from the inbox and puts into a >mails< object'''
@@ -53,10 +94,11 @@ def get_sender_mail(items):
     '''gets the items object to retrieve all the inbox's mail sent from the sender the user inputs and and prints them. then return the list of emails.''' 
 
     user_input = input("Insert the sender address you want to filter from your inbox: ")
-    emails = [m for m in items if user_input in m.SenderEmailAddress.lower()]   
+    emails = [m for m in items if user_input.lower() in m.SenderEmailAddress.lower()]   
    
     for email in emails:
         print(email)
+    print("")
 
     return email
 
@@ -65,35 +107,79 @@ def get_mail_by_subject(items):
     '''gets the items object to retrieve all the inbox's mail with the user inputs on the subject and and prints them. then return the list of emails.''' 
 
     user_input = input("Insert the content on the mail's subject you want to filter from your inbox: ")
-    print("")
-    emails = [m for m in items if user_input in m.Subject.lower()]    
+    emails = [m for m in items if user_input.lower() in m.Subject.lower()]    
 
     for email in emails:
-        print(email)
+        print(f"Email: {email} || from: {email.SenderEmailAddress}")
 
-    return email
+
+    print("")
+    return emails
 
 
 def main():
+    account = get_account()
+    inbox = enter_application(account)
+    mails = get_all_mail(inbox)
+
     while True:
-        account = get_account()
-        inbox = enter_application(account)
-        mails = get_all_mail(inbox)
-        result = select_type_mail(type_list)
+        menu_selection = get_user_selection()
 
-        if result is not None:
-            if result == type_list[0]:
-                filtered_mail = get_mail_by_subject(mails)
-            elif result == type_list[1]:
-                filtered_mail = get_sender_mail(mails)
-    
-        user_input = input("Press enter to continue or insert 'off' to end the program.  ")
+        # create new folder
+        if menu_selection == '1':
+            # account = get_account()
+            # inbox = enter_application(account)
+            new_folder_name = get_new_folder_name()
+            create_folder(inbox, new_folder_name)
 
-        if user_input == 'off':
-            sys.exit()
+            user_input = input("Press enter to continue or insert 'off' to end the program.\n")
+
+            if user_input == 'off':
+                sys.exit()
         
-        else:
+            else:
+                pass
+
+        # move mail to folder
+        elif menu_selection == '2':                        
+            result = select_type_mail(type_list)
+
+            if result is not None:
+                if result == type_list[0]:
+                    filtered_mail = get_mail_by_subject(mails)
+                elif result == type_list[1]:
+                    filtered_mail = get_sender_mail(mails)
+
+                folder_name = get_folder_name()
+                move_to_folder(folder_name, filtered_mail, inbox)
+            
+    
+            user_input = input("Press enter to continue or insert 'off' to end the program.\n")
+            if user_input == 'off':
+                sys.exit()
+        
+            else:
+                pass
+
+        # mark mail as read
+        elif menu_selection == '3':
+            
             pass
+        
+        # delete mail
+        elif menu_selection == '4':
+            pass
+
+        # mark ALL as read
+        elif menu_selection == '5':
+            pass
+
+        # delete ALL mail
+        elif menu_selection == '6':
+            pass
+
+        else:
+            print("Wrong input. Try again. ")
 
 
 ## MAIN
