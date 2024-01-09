@@ -8,11 +8,11 @@ after fetching the emails list, the user then can mark them as read, move to a f
 - list mail by:
     - subject
     - sender
-    - sender and subject (wip)
+    - sender and subject
 
 - mail operations:
-    - create mail folder (wip)
-    - move mail to specific folder (wip)
+    - create mail folder
+    - move mail to specific folder
     - delete mail (wip)
     - mark as read (wip)
 
