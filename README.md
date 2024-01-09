@@ -1,4 +1,4 @@
-# outlook_organizer.py
+# outlook_organizer.py v1.2.1
 requires a fully configured and functional outlook mail app on windows with a logged account. this script doesn't need the user to insert his password anywhere.
 
 this app lets the user filter his inbox by subject or sender. the user doesn't need to type the entirety of the subject or the sender.
