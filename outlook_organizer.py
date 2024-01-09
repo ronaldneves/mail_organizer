@@ -1,7 +1,8 @@
 import sys
 import win32com.client as w32
 
-type_list = ['subject', 'sender']
+filters_list = ['subject', 'sender', 'sender and subject']
+
 
 ## FUNCTIONS
 def get_user_selection():
@@ -9,7 +10,7 @@ def get_user_selection():
     
     print("Welcome to the mail organizer. ")
     print("Insert the number of the function you want to do based on the options below: ")
-    print("1 - Create a new mail folder\n2 - Move mail\n3 - Mark mail as read\n4 - Delete mail\n5 - Mark ALL as read\n6 - Delete ALL mail")
+    print("1 - Search and list mail\n2 - Create a new mail folder\n3 - Move mail\n4 - Mark mail as read\n5 - Delete mail\n6 - Mark ALL as read\n7 - Delete ALL mail")
     menu_selection = input("")
 
     return menu_selection
@@ -18,7 +19,7 @@ def get_user_selection():
 def get_account():
     '''gets and returns the user account. must be str with a valid mail @outlook/@live/@hotmail.'''
  
-    return input("Insert your outlook/live/hotmail account: ")
+    return input("Insert your outlook/live/hotmail account: ").lower()
 
 
 def enter_application(account):
@@ -51,9 +52,9 @@ def create_folder(inbox, new_folder_name):
 
 
 def get_folder_name():
-    '''gets the user input to select the folder he wants to move his mail to'''
+    '''gets and returns the user input to select the folder he wants to use on the selected operation'''
 
-    return input("Insert the name of the folder you want to move the listed mail to: ")
+    return input("Insert the name of the folder you want to use: ")
 
 
 def move_to_folder(folder_name, mail_list, inbox):
@@ -66,6 +67,10 @@ def move_to_folder(folder_name, mail_list, inbox):
         print(f"An error has occurred while trying to move your mail. Error: {e}")
     
 
+def mark_mail_as_read(mail_list):
+    pass
+
+
 def get_all_mail(inbox):
     '''retrieves all mail from the inbox and puts into a >mails< object'''
 
@@ -75,46 +80,94 @@ def get_all_mail(inbox):
     return mails
 
 
-def select_type_mail(type_list):
-    '''takes the list of supported filters from the type_list and let the user chooses how he wants to filter his inbox.'''
+def select_type_mail(filters_list):
+    '''takes the list of supported filters from the filters_list and let the user chooses how he wants to filter his inbox.'''
 
     print("Insert the type of mail you want to filter from the list below: ")
-    print(type_list)
-    user_input = input("")
+    counter = 0
 
-    if user_input in type_list:
-        return user_input
+    for filter in filters_list:
+        counter += 1        
+        print(f"{counter} - {filter}")
+
+    user_input = int(input(""))
+
+    if user_input <= len(filters_list):
+        return filters_list[user_input - 1]
     
     else:
-        print(f"Type invalid or not supported. Supported filter types: {type_list}")    
+        print(f"Type invalid or not supported yet. Supported filter types: {filters_list}")    
         return None
 
 
 def get_sender_mail(items):
     '''gets the items object to retrieve all the inbox's mail sent from the sender the user inputs and and prints them. then return the list of emails.''' 
 
+    mail_count = 0
     user_input = input("Insert the sender address you want to filter from your inbox: ")
-    emails = [m for m in items if user_input.lower() in m.SenderEmailAddress.lower()]   
-   
+    emails = [m for m in items if user_input.lower() in m.SenderEmailAddress.lower()]
+       
     for email in emails:
-        print(email)
-    print("")
-
-    return email
+        print(f"Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
+        mail_count += 1
+    
+    print(f"{mail_count} mail were found using the {user_input}'s search term")
+    return emails
 
 
 def get_mail_by_subject(items):
     '''gets the items object to retrieve all the inbox's mail with the user inputs on the subject and and prints them. then return the list of emails.''' 
 
+    mail_count = 0
     user_input = input("Insert the content on the mail's subject you want to filter from your inbox: ")
     emails = [m for m in items if user_input.lower() in m.Subject.lower()]    
 
     for email in emails:
-        print(f"Email: {email} || from: {email.SenderEmailAddress}")
+        print(f"Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
+        mail_count += 1
 
-
-    print("")
+    print(f"{mail_count} mail were found using the {user_input}'s search term")
     return emails
+
+
+def get_mail_sender_and_subject(items):
+    '''gets the items object to retrieve all the inbox's mail from an specific sender with an specific subject from the user input'''
+
+    mail_count = 0
+    sender = input("Insert the sender adress you want to search: ")
+    subject = input("Insert the content on the mail's subject you want to search from the sender: ")
+    emails = [m for m in items if sender.lower() in m.SenderEmailAddress.lower() and subject.lower() in m.Subject.lower()]
+
+    for email in emails:
+        print(f"Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
+        mail_count += 1
+
+    print(f"{mail_count} mail were found combining the {sender} and {subject} on the search")
+    return emails
+
+
+def check_result(result, mails):
+    '''gets the selected filter from the selection and returns the list of mail from this search'''
+
+    if result is not None:
+        if result == filters_list[0]:
+            filtered_mail = get_mail_by_subject(mails)
+            return filtered_mail
+        elif result == filters_list[1]:
+            filtered_mail = get_sender_mail(mails)
+            return filtered_mail
+        elif result == filters_list[2]:
+            filtered_mail = get_mail_sender_and_subject(mails)
+            return filtered_mail
+
+
+def check_exit_program():
+    user_input = input("Press enter to continue or insert 'off' to end the program.\n")
+    
+    if user_input == 'off':
+        sys.exit()            
+    else:
+        return
 
 
 def main():
@@ -125,57 +178,48 @@ def main():
     while True:
         menu_selection = get_user_selection()
 
-        # create new folder
+        # list all mail
         if menu_selection == '1':
+            result = select_type_mail(filters_list)           
+            check_result(result, mails)
+            check_exit_program()
+            
+        # create new folder
+        elif menu_selection == '2':
             # account = get_account()
             # inbox = enter_application(account)
             new_folder_name = get_new_folder_name()
             create_folder(inbox, new_folder_name)
-
-            user_input = input("Press enter to continue or insert 'off' to end the program.\n")
-
-            if user_input == 'off':
-                sys.exit()
-        
-            else:
-                pass
+            check_exit_program()
 
         # move mail to folder
-        elif menu_selection == '2':                        
-            result = select_type_mail(type_list)
+        elif menu_selection == '3':                        
+            result = select_type_mail(filters_list)
 
-            if result is not None:
-                if result == type_list[0]:
-                    filtered_mail = get_mail_by_subject(mails)
-                elif result == type_list[1]:
-                    filtered_mail = get_sender_mail(mails)
-
+            if check_result(result, mails) is not None:              
                 folder_name = get_folder_name()
                 move_to_folder(folder_name, filtered_mail, inbox)
-            
     
-            user_input = input("Press enter to continue or insert 'off' to end the program.\n")
-            if user_input == 'off':
-                sys.exit()
-        
-            else:
-                pass
+            check_exit_program()
 
         # mark mail as read
-        elif menu_selection == '3':
-            
-            pass
+        elif menu_selection == '4':
+            result = select_type_mail(filters_list)
+            filtered_mail = check_result(result, mails)
+            mark_mail_as_read(filtered_mail)    
+
+            check_exit_program()            
         
         # delete mail
-        elif menu_selection == '4':
-            pass
-
-        # mark ALL as read
         elif menu_selection == '5':
             pass
 
-        # delete ALL mail
+        # mark ALL as read
         elif menu_selection == '6':
+            pass
+
+        # delete ALL mail
+        elif menu_selection == '7':
             pass
 
         else:
