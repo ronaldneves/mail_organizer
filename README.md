@@ -4,6 +4,8 @@ requires a fully configured and functional outlook mail app on windows with a lo
 this app lets the user filter his inbox by subject or sender. the user doesn't need to type the entirety of the subject or the sender.
 after fetching the emails list, the user then can mark them as read, move to a folder or delete all.
 
+check the releases page for more info on the project's development.
+
 ## features
 - list mail by:
     - subject
