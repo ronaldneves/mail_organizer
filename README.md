@@ -22,3 +22,6 @@ check the releases page for more info on the project's development.
 
 ## supported languages
 - portuguese (BR)
+
+## supported OS's
+- Windows (7, 8, 10, 11)
