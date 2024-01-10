@@ -138,7 +138,7 @@ def get_sender_mail(items):
     system('cls')
 
     for email in emails:
-        print(f"Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}")
+        print(f"<Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}>")
         mail_count += 1
     
     print(f"\n{mail_count} mail were found using the {user_input}'s search term")
@@ -173,7 +173,7 @@ def get_mail_by_subject(items):
     system('cls')
 
     for email in emails:
-        print(f"Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}")
+        print(f"<Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}>")
         mail_count += 1
 
     print(f"\n{mail_count} mail were found using the {user_input}'s search term")
@@ -190,7 +190,7 @@ def get_mail_sender_and_subject(items):
     emails = [m for m in items if sender.lower() in m.SenderEmailAddress.lower() and subject.lower() in m.Subject.lower()]
 
     for email in emails:
-        print(f"Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
+        print(f"<Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}>")
         mail_count += 1
 
     print(f"{mail_count} mail were found combining the {sender} and {subject} on the search")
