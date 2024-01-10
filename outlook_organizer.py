@@ -1,5 +1,6 @@
 import sys
 import win32com.client as w32
+from os import system
 
 filters_list = ['subject', 'sender', 'sender and subject']
 
@@ -8,9 +9,9 @@ filters_list = ['subject', 'sender', 'sender and subject']
 def get_user_selection():
     '''gets the operation the user wants to perform and returns it.'''
     
-    print("Welcome to the mail organizer. ")
+    system('cls')    
     print("Insert the number of the function you want to do based on the options below: ")
-    print("1 - Search and list mail\n2 - Create a new mail folder\n3 - Move mail\n4 - Mark mail as read\n5 - Delete mail\n6 - Mark ALL as read\n7 - Delete ALL mail")
+    print("1 - Search and list mail\n2 - Create a new mail folder\n3 - Move mail\n4 - Mark mail as read\n5 - Delete mail\n6 - Mark ALL as read\n7 - Delete ALL mail\n8 - End program")
     menu_selection = input("")
 
     return menu_selection
@@ -18,17 +19,26 @@ def get_user_selection():
 
 def get_account():
     '''gets and returns the user account. must be str with a valid mail @outlook/@live/@hotmail.'''
- 
-    return input("Insert your outlook/live/hotmail account: ").lower()
+    
+    print("Welcome to the mail organizer. ")
+    user_account = input("Insert your outlook/live/hotmail account: ").lower()  
+    return user_account
 
 
 def enter_application(account):
-    '''takes the account from the user input to create the >inbox< object which contains all mail and returns it'''
+    '''takes the account from the user input to create the >inbox< object which contains all mail and returns it.
+    if the account is not logged on the outlook app, it will raise an exception and end the program.'''
     
-    outlook = w32.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    account = outlook.Folders[account]
-    inbox = account.Folders['Caixa de Entrada']
+    try:
+        outlook = w32.Dispatch("Outlook.Application").GetNamespace("MAPI")
+        account = outlook.Folders[account]
+        inbox = account.Folders['Caixa de Entrada']
 
+    except Exception:
+        system('cls')
+        print(f"Error: the account you inserted is not available on the Windows Outlook app.\nPlease make sure your account is logged and the Outlook app is up to date.")
+        sys.exit()
+    
     return inbox
 
 
@@ -83,7 +93,7 @@ def get_all_mail(inbox):
 def select_type_mail(filters_list):
     '''takes the list of supported filters from the filters_list and let the user chooses how he wants to filter his inbox.'''
 
-    print("Insert the type of mail you want to filter from the list below: ")
+    print("Insert the type of mail you want to filter by the number from the list below: ")
     counter = 0
 
     for filter in filters_list:
@@ -103,36 +113,77 @@ def select_type_mail(filters_list):
 def get_sender_mail(items):
     '''gets the items object to retrieve all the inbox's mail sent from the sender the user inputs and and prints them. then return the list of emails.''' 
 
+    system('cls')
     mail_count = 0
-    user_input = input("Insert the sender address you want to filter from your inbox: ")
-    emails = [m for m in items if user_input.lower() in m.SenderEmailAddress.lower()]
-       
+    user_input = []
+    sender = ""
+    emails = []
+
+    while sender != "end":
+        sender = input("Insert the sender's email address you want to filter from your inbox (insert 'end' to finish): ").lower()
+        
+        if sender != "end":
+            user_input.append(sender)
+
+    for address in user_input:        
+        emails.extend([
+            {
+                'Subject': m.Subject,
+                'SenderEmailAddress': m.SenderEmailAddress,
+                'ReceivedDate': m.ReceivedTime.date()
+            }
+            for m in items if address in m.SenderEmailAddress.lower()
+        ])
+    
+    system('cls')
+
     for email in emails:
-        print(f"Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
+        print(f"Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}")
         mail_count += 1
     
-    print(f"{mail_count} mail were found using the {user_input}'s search term")
+    print(f"\n{mail_count} mail were found using the {user_input}'s search term")
     return emails
 
 
 def get_mail_by_subject(items):
     '''gets the items object to retrieve all the inbox's mail with the user inputs on the subject and and prints them. then return the list of emails.''' 
-
+    
+    system('cls')
     mail_count = 0
-    user_input = input("Insert the content on the mail's subject you want to filter from your inbox: ")
-    emails = [m for m in items if user_input.lower() in m.Subject.lower()]    
+    user_input = []    
+    term = ""
+    emails = []
+
+    while term != "end":
+        term = input("Insert the term on the mail's subject you want to filter from your inbox (insert 'end' to finish): ").lower()
+        
+        if term != "end":
+            user_input.append(term)
+    
+    for search_term in user_input:
+        emails.extend([
+            {
+            'Subject': m.Subject,
+            'SenderEmailAddress': m.SenderEmailAddress,
+            'ReceivedDate': m.ReceivedTime.date()
+        }
+        for m in items if search_term in m.Subject.lower()
+    ])
+
+    system('cls')
 
     for email in emails:
-        print(f"Email: {email} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
+        print(f"Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}")
         mail_count += 1
 
-    print(f"{mail_count} mail were found using the {user_input}'s search term")
+    print(f"\n{mail_count} mail were found using the {user_input}'s search term")
     return emails
 
 
 def get_mail_sender_and_subject(items):
     '''gets the items object to retrieve all the inbox's mail from an specific sender with an specific subject from the user input'''
 
+    system('cls')
     mail_count = 0
     sender = input("Insert the sender adress you want to search: ")
     subject = input("Insert the content on the mail's subject you want to search from the sender: ")
@@ -180,20 +231,21 @@ def main():
 
         # list all mail
         if menu_selection == '1':
+            system('cls')
             result = select_type_mail(filters_list)           
             check_result(result, mails)
             check_exit_program()
             
         # create new folder
         elif menu_selection == '2':
-            # account = get_account()
-            # inbox = enter_application(account)
+            system('cls')            
             new_folder_name = get_new_folder_name()
             create_folder(inbox, new_folder_name)
             check_exit_program()
 
         # move mail to folder
-        elif menu_selection == '3':                        
+        elif menu_selection == '3':
+            system('cls')                              
             result = select_type_mail(filters_list)
 
             if check_result(result, mails) is not None:              
@@ -204,6 +256,7 @@ def main():
 
         # mark mail as read
         elif menu_selection == '4':
+            system('cls')
             result = select_type_mail(filters_list)
             filtered_mail = check_result(result, mails)
             mark_mail_as_read(filtered_mail)    
@@ -212,15 +265,23 @@ def main():
         
         # delete mail
         elif menu_selection == '5':
+            system('cls')
             pass
 
         # mark ALL as read
         elif menu_selection == '6':
+            system('cls')
             pass
 
         # delete ALL mail
         elif menu_selection == '7':
+            system('cls')
             pass
+
+        # exit program withouth having to select an option on the menu
+        elif menu_selection == '8':
+            system('cls')
+            check_exit_program()
 
         else:
             print("Wrong input. Try again. ")
