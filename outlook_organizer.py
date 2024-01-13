@@ -77,7 +77,7 @@ def move_to_folder(folder_name, mail_list, inbox):
         print(f"An error has occurred while trying to move your mail. Error: {e}")
     
 
-def mark_mail_as_read(mail_list):
+def mark_mail_as_read(mail_list): ## TO-DO
     pass
 
 
@@ -126,19 +126,12 @@ def get_sender_mail(items):
             user_input.append(sender)
 
     for address in user_input:        
-        emails.extend([
-            {
-                'Subject': m.Subject,
-                'SenderEmailAddress': m.SenderEmailAddress,
-                'ReceivedDate': m.ReceivedTime.date()
-            }
-            for m in items if address in m.SenderEmailAddress.lower()
-        ])
+        emails.extend([m for m in items if address in m.SenderEmailAddress.lower()])
     
     system('cls')
 
     for email in emails:
-        print(f"<Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}>")
+        print(f"<Email: {email.Subject} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}")
         mail_count += 1
     
     print(f"\n{mail_count} mail were found using the {user_input}'s search term")
@@ -161,19 +154,12 @@ def get_mail_by_subject(items):
             user_input.append(term)
     
     for search_term in user_input:
-        emails.extend([
-            {
-            'Subject': m.Subject,
-            'SenderEmailAddress': m.SenderEmailAddress,
-            'ReceivedDate': m.ReceivedTime.date()
-        }
-        for m in items if search_term in m.Subject.lower()
-    ])
+        emails.extend([m for m in items if search_term in m.Subject.lower()])
 
     system('cls')
 
     for email in emails:
-        print(f"<Email: {email['Subject']} || from: {email['SenderEmailAddress']} || date: {email['ReceivedDate']}>")
+        print(f"<Email: {email.Subject} || from: {email.SenderEmailAddress} || date: {email.ReceivedTime.date()}>")
         mail_count += 1
 
     print(f"\n{mail_count} mail were found using the {user_input}'s search term")
@@ -210,6 +196,8 @@ def check_result(result, mails):
         elif result == filters_list[2]:
             filtered_mail = get_mail_sender_and_subject(mails)
             return filtered_mail
+    
+    return None
 
 
 def check_exit_program():
@@ -220,6 +208,25 @@ def check_exit_program():
     else:
         return
 
+
+def delete_mail(mail_list):
+    '''takes te mail list that was returned from the search/filter function and deletes one by one'''
+
+    count_delete = 0
+
+    user_input = input("Do you want to delete the email list above? insert yes/no: ").lower()
+
+    if user_input == 'yes':
+        try:
+            for mail in mail_list:
+                count_delete += 1
+                mail.Delete()
+
+            print(f"{count_delete} emails were successfully deleted.")
+
+        except Exception as e:
+            print(f"An error was occured while trying to delete your mail. Error: {e}")  
+    
 
 def main():
     account = get_account()
@@ -266,7 +273,13 @@ def main():
         # delete mail
         elif menu_selection == '5':
             system('cls')
-            pass
+            result = select_type_mail(filters_list)
+            mail_list = check_result(result, mails)
+
+            if mail_list is not None:
+                delete_mail(mail_list)
+
+            check_exit_program()
 
         # mark ALL as read
         elif menu_selection == '6':
