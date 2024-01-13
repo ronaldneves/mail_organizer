@@ -1,4 +1,4 @@
-# outlook_organizer.py v1.2.1
+# outlook_organizer.py v1.4.1
 requires a fully configured and functional outlook mail app on windows with a logged account. this script doesn't need the user to insert his password anywhere.
 
 this app lets the user filter his inbox by subject or sender. the user doesn't need to type the entirety of the subject or the sender.
@@ -13,12 +13,14 @@ check the releases page for more info on the project's development.
     - sender and subject
 
 - mail operations:
+    - list mail
     - create mail folder
     - move mail to specific folder
-    - delete mail (wip)
+    - delete mail 
     - mark as read (wip)
     - delete all mail (wip)
     - mark all as read (wip)
+    - download attachments (wip)
 
 ## supported languages
 - portuguese (BR)
